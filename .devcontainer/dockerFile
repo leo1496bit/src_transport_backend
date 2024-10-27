@@ -1,5 +1,5 @@
 FROM maven:3.8.4-openjdk-17
-WORKDIR ../user/
+WORKDIR /usr/src/
 COPY . .
 RUN ls
 RUN mvn clean install -DskipTests
