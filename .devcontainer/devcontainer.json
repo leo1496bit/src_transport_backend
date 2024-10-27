@@ -1,0 +1,6 @@
+{
+  "name": "Spring boot application",
+  "dockerFile": "dockerFile",
+  "forwardPorts": [8080],
+  "extensions": ["vscjava.vscode-java-pack"]
+}
