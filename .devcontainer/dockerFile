@@ -1,6 +1,6 @@
 FROM maven:3.8.4-openjdk-17
-WORKDIR /app
-COPY . .
+WORKDIR /
+COPY .. .
 RUN ls
 RUN mvn clean install -DskipTests
 CMD ["mvn","spring-boot:run"]
