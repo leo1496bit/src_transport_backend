@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  app:
+    image: mon-app:latest   # Utilise l’image construite depuis le dev-prod-Dockerfile
+    build: .
+    container_name: mon-app-container
+    ports:
+      - "8443:8443"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./certs/keystore.p12:/app/keystore.p12
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    entrypoint: ["java", "-jar", "myapp.jar"]
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=carliine
+      - MONGO_INITDB_ROOT_PASSWORD=@Mangerdu9742338
+      - MONGO_INITDB_DATABASE=carliine
+    volumes:
+      - mongo_data:/data/db
+volumes:
+  mongo_data:
