@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/emails")
@@ -53,6 +56,32 @@ public class EmailController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Erreur lors de l'envoi de l'email : " + e.getMessage());
         }
+    }
+    @CrossOrigin(origins = "${api.url}")
+    @PostMapping("/send-with-attachments")
+    public String sendEmailWithAttachements(
+            @RequestParam String to,
+            @RequestParam String subject,
+            @RequestParam String body,
+            @RequestParam List<MultipartFile> attachments) throws MessagingException, IOException {
+
+        // Convertir les fichiers reçus en liste de fichiers
+        File[] files = new File[attachments.size()];
+        for (int i = 0; i < attachments.size(); i++) {
+            File file = File.createTempFile("attachment-", attachments.get(i).getOriginalFilename());
+            attachments.get(i).transferTo(file);
+            files[i] = file;
+        }
+
+        // Appeler le service pour envoyer l'email
+        emailService.sendEmailWithAttachments(to, subject, body, Arrays.stream(files).map(File::getAbsolutePath).collect(Collectors.toList()));
+
+        // Après l'envoi de l'e-mail, supprimer les fichiers temporaires
+        for (File file : files) {
+            file.delete();
+        }
+
+        return "E-mail envoyé avec succès!";
     }
 }
 

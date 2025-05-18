@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.List;
 
 @Service
 public class EmailService {
@@ -17,12 +18,13 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendSimpleEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        message.setFrom("noreply@carliine.com");
+    public void sendSimpleEmail(String to, String subject, String text) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(text, true);
+        helper.setFrom("noreply@carliine.com");
 
         mailSender.send(message);
     }
@@ -44,6 +46,34 @@ public class EmailService {
         } else {
             throw new MessagingException("Le fichier " + attachmentPath + " est introuvable !");
         }
+
+        // Envoyer l'email
+        mailSender.send(message);
+    }
+    public void sendEmailWithAttachments(String to, String subject, String text, List<String> attachmentPaths) throws MessagingException {
+        // Créer un MimeMessage
+        MimeMessage message = mailSender.createMimeMessage();
+
+        // Utiliser MimeMessageHelper pour ajouter des pièces jointes
+        MimeMessageHelper helper = new MimeMessageHelper(message, true); // true pour pièce jointe
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(text,true);
+        helper.setFrom("noreply@carliine.com");
+
+        // Ajouter la pièce jointe
+        attachmentPaths.forEach(attachmentPath->{
+            FileSystemResource file = new FileSystemResource(new File(attachmentPath));
+            if (file.exists()) {
+                try {
+                    helper.addAttachment(file.getFilename(), file);
+                } catch (MessagingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+
 
         // Envoyer l'email
         mailSender.send(message);
