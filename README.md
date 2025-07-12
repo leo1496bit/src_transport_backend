@@ -1,0 +1,1 @@
+documentation mailgun https://github.com/mailgun/mailgun-java?tab=readme-ov-file#send-email-attachments-example
